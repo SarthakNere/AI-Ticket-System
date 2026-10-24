@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}Ticket #{{ ticket.id }} | SupportDesk{% endblock %}
+{% block page_heading %}Ticket details{% endblock %}
+{% block content %}
+<div class="breadcrumbs"><a href="{{ url_for('analyzer_dashboard') if g.user.role == 'analyzer' else url_for('customer_dashboard') }}"><i class="bi bi-arrow-left"></i> Back to {{ 'ticket queue' if g.user.role == 'analyzer' else 'my tickets' }}</a><span>/</span><span>Ticket #{{ ticket.id }}</span></div>
+<div class="detail-title-row"><div><div class="ticket-overline">TICKET #{{ ticket.id }} <span class="pill status-{{ (ticket.status or 'open')|lower|replace(' ', '-') }}">{{ ticket.status }}</span></div><h2>{{ ticket.subject }}</h2><p>Created {{ ticket.created_long_display }}</p></div></div>
+<div class="details-grid">
+  <div class="details-main">
+    <section class="panel detail-panel"><div class="panel-heading"><div><h3><i class="bi bi-chat-left-text me-2"></i>Customer issue</h3><p>Original ticket description</p></div></div>
+      <div class="customer-profile"><div class="avatar-circle">{{ ticket.customer_name[:1]|upper }}</div><div><strong>{{ ticket.customer_name }}</strong><span>{{ ticket.customer_email }}</span></div></div>
+      {% if g.user.role == 'customer' and ticket.status != 'Resolved' %}
+      <form class="customer-edit-form" method="POST" action="{{ url_for('edit_customer_ticket', ticket_id=ticket.id) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <label for="customerSubject">Subject</label><input class="form-control" id="customerSubject" name="subject" maxlength="200" required value="{{ ticket.subject }}">
+        <label for="customerDescription">Description</label><textarea class="form-control description-input" id="customerDescription" name="description" rows="6" maxlength="10000" required>{{ ticket.description }}</textarea>
+        <button class="btn btn-outline-primary mt-3" type="submit"><i class="bi bi-check2 me-1"></i>Update request</button>
+      </form>
+      {% else %}
+      <div class="description-box">{{ ticket.description }}</div>
+      {% endif %}
+    </section>
+    {% if g.user.role == 'analyzer' %}
+    <section class="panel detail-panel ai-reply-panel"><div class="panel-heading"><div><h3><i class="bi bi-chat-square-text me-2"></i>Reply to customer</h3><p>Review the draft, make it your own, then send it to the customer.</p></div><span class="ai-tag">{% if ticket.ai_suggested_reply %}AI DRAFT{% else %}YOUR REPLY{% endif %}</span></div>
+      {% if ticket.analyzer_reply %}<div class="analyzer-last-reply"><span><i class="bi bi-check-circle-fill me-1"></i>Latest reply sent</span><p>{{ ticket.analyzer_reply }}</p></div>{% endif %}
+      <form method="POST" action="{{ url_for('send_ticket_reply', ticket_id=ticket.id) }}" id="sendReplyForm">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <textarea class="form-control reply-textarea" id="replyText" name="analyzer_reply" rows="7" maxlength="5000" required>{{ ticket.ai_suggested_reply or '' }}</textarea>
+        <div class="reply-actions"><span class="field-hint"><i class="bi bi-bell me-1"></i>Sending posts this reply to the customer's ticket and creates an in-app notification.</span><div class="d-flex gap-2 flex-wrap"><button class="btn btn-outline-primary" type="button" id="copyReply"><i class="bi bi-clipboard me-1"></i>Copy</button><button class="btn btn-primary" type="submit"><i class="bi bi-send me-1"></i>Send reply</button></div></div>
+      </form>
+    </section>
+    {% else %}
+    {% if ticket.analyzer_reply %}
+    <section class="panel detail-panel customer-reply-panel" aria-live="polite">
+      <div class="panel-heading"><div><h3><i class="bi bi-chat-square-heart me-2"></i>Support team response</h3><p>A member of the support team replied to your request.</p></div>{% if ticket.reply_is_new %}<span class="new-reply-badge"><span></span>NEW</span>{% endif %}</div>
+      <div class="response-meta"><i class="bi bi-headset"></i><span>Support team</span>{% if ticket.analyzer_reply_at %}<time datetime="{{ ticket.analyzer_reply_at }}">{{ ticket.analyzer_reply_at[:10] }}</time>{% endif %}</div>
+      <div class="response-body">{{ ticket.analyzer_reply }}</div>
+    </section>
+    {% endif %}
+    <section class="panel detail-panel"><div class="panel-heading"><div><h3><i class="bi bi-info-circle me-2"></i>What happens next?</h3><p>Your request is in the support team's queue.</p></div></div><div class="customer-next-step">{% if ticket.analyzer_reply %}If you have any follow-up questions, reply to this ticket through your support portal. You can return to My tickets at any time to check its status.{% else %}A support team member will review your request. You can return to My tickets any time to check its latest status.{% endif %}</div></section>
+    {% endif %}
+  </div>
+  <aside class="details-side">
+    {% if g.user.role == 'analyzer' %}
+    <section class="panel detail-panel"><div class="panel-heading"><div><h3>AI analysis</h3><p>Signals detected from the ticket</p></div></div>
+      <div class="analysis-item"><span class="analysis-label"><i class="bi bi-collection"></i> Category</span><strong>{{ ticket.category or 'Uncategorized' }}</strong></div>
+      <div class="analysis-item"><span class="analysis-label"><i class="bi bi-flag"></i> Priority</span><span class="pill priority-{{ (ticket.priority or 'medium')|lower|replace(' ', '-') }}">{{ ticket.priority or 'Medium' }}</span></div>
+      <div class="analysis-item"><span class="analysis-label"><i class="bi bi-emoji-neutral"></i> Sentiment</span><span class="pill sentiment-{{ (ticket.sentiment or 'unknown')|lower|replace(' ', '-') }}">{{ ticket.sentiment or 'Unknown' }}</span></div>
+    </section>
+    <section class="panel detail-panel"><div class="panel-heading"><div><h3>Manage ticket</h3><p>Update ticket status and priority.</p></div></div>
+      <form method="POST" action="{{ url_for('update_ticket', ticket_id=ticket.id) }}" class="manage-form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <label for="status">Status</label><select class="form-select" id="status" name="status" required>{% for value in ['Open', 'In Progress', 'Resolved'] %}<option value="{{ value }}" {% if ticket.status == value %}selected{% endif %}>{{ value }}</option>{% endfor %}</select>
+        <label for="priority">Priority</label><select class="form-select" id="priority" name="priority" required>{% for value in ['Low', 'Medium', 'High', 'Urgent'] %}<option value="{{ value }}" {% if ticket.priority == value %}selected{% endif %}>{{ value }}</option>{% endfor %}</select>
+        <input type="hidden" name="ai_suggested_reply" id="savedReply">
+        <button class="btn btn-primary w-100 mt-2" type="submit" id="saveTicket"><i class="bi bi-check2-circle me-2"></i>Save changes</button>
+      </form>
+    </section>
+    <div class="tip-card"><i class="bi bi-lightbulb"></i><div><strong>Support tip</strong><p>Review the AI draft and confirm that it accurately addresses the customer's concern before using it.</p></div></div>
+    {% else %}
+    <section class="panel detail-panel"><div class="panel-heading"><div><h3>Request status</h3><p>Your latest ticket update</p></div></div><div class="analysis-item"><span class="analysis-label"><i class="bi bi-flag"></i> Status</span><span class="pill status-{{ (ticket.status or 'open')|lower|replace(' ', '-') }}">{{ ticket.status }}</span></div><div class="analysis-item"><span class="analysis-label"><i class="bi bi-calendar3"></i> Submitted</span><strong>{{ ticket.created_display }}</strong></div></section>
+    {% endif %}
+  </aside>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const reply = document.getElementById('replyText');
+  const hidden = document.getElementById('savedReply');
+  const form = document.querySelector('.manage-form');
+  if (form && reply && hidden) form.addEventListener('submit', () => { hidden.value = reply.value; });
+});
+</script>
+{% endblock %}

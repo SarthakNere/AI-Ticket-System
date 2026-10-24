@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f7f8fc">
+  <meta name="description" content="SupportDesk helps customers get help and gives support teams a clear, AI-assisted workspace to manage every request.">
+  <title>SupportDesk | Support, made clearer</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+</head>
+<body class="landing-page">
+  <header class="landing-header">
+    <a class="landing-brand" href="{{ url_for('home') }}"><span class="brand-mark"><i class="bi bi-headset"></i></span><span>SupportDesk<small>AI SUPPORT WORKSPACE</small></span></a>
+    <button class="landing-menu-toggle" type="button" aria-label="Open navigation" aria-expanded="false" aria-controls="landingNav"><i class="bi bi-list"></i></button>
+    <nav class="landing-nav" id="landingNav">
+      <a class="landing-nav-active" href="{{ url_for('home') }}">Home</a>
+      <a href="{{ url_for('customer_login') }}">Customer portal</a>
+      <a href="{{ url_for('analyzer_login') }}">Analyzer portal</a>
+      <a class="btn btn-primary landing-nav-cta" href="{{ url_for('customer_signup') }}">Get support <i class="bi bi-arrow-up-right ms-1"></i></a>
+    </nav>
+  </header>
+
+  <main>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="landing-flashes">
+          {% for category, message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+              {{ message }}<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+    <section class="landing-hero">
+      <div class="hero-copy">
+        <div class="hero-kicker"><span class="status-dot"></span> A calmer way to manage customer support</div>
+        <h1>Great support starts with <span>understanding.</span></h1>
+        <p class="hero-description">Customers can raise a request and follow its progress. Support teams get a clear queue, AI-assisted context, and the tools to respond with care.</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary btn-lg" href="{{ url_for('customer_signup') }}">Get help as a customer <i class="bi bi-arrow-right ms-2"></i></a>
+          <a class="hero-secondary-link" href="{{ url_for('analyzer_login') }}">Support team sign in <i class="bi bi-arrow-up-right ms-1"></i></a>
+        </div>
+        <div class="hero-trust"><i class="bi bi-shield-check"></i> AI-assisted, human-reviewed. Your support team stays in control.</div>
+      </div>
+      <div class="hero-visual" aria-label="SupportDesk ticket workflow overview">
+        <div class="visual-glow"></div>
+        <div class="preview-window">
+          <div class="preview-topbar"><div class="preview-window-dots"><i></i><i></i><i></i></div><span>ONE CONNECTED WORKFLOW</span><span class="preview-live"><i></i> READY</span></div>
+          <div class="preview-content">
+            <div class="preview-greeting"><div><span>SUPPORTDESK</span><strong>Every request, in good hands.</strong></div><span class="preview-avatar"><i class="bi bi-headset"></i></span></div>
+            <div class="preview-queue">
+              <div class="preview-queue-title"><strong>Support from start to resolution</strong><a href="{{ url_for('customer_signup') }}">Get started <i class="bi bi-arrow-right"></i></a></div>
+              <div class="preview-queue-row"><span class="queue-icon queue-blue"><i class="bi bi-inbox"></i></span><span><b>Customers share what they need</b><small>Secure account and personal ticket history</small></span><i class="bi bi-check2 queue-check"></i></div>
+              <div class="preview-queue-row"><span class="queue-icon queue-violet"><i class="bi bi-stars"></i></span><span><b>AI helps the team see the signal</b><small>Suggested category, urgency, and sentiment</small></span><i class="bi bi-check2 queue-check"></i></div>
+              <div class="preview-queue-row"><span class="queue-icon queue-green"><i class="bi bi-chat-left-text"></i></span><span><b>People decide what happens next</b><small>Review, edit, and manage every response</small></span><i class="bi bi-check2 queue-check"></i></div>
+            </div>
+            <div class="preview-portals"><a href="{{ url_for('customer_login') }}"><i class="bi bi-person"></i> Customer portal</a><a href="{{ url_for('analyzer_login') }}"><i class="bi bi-person-workspace"></i> Analyzer portal</a></div>
+          </div>
+        </div>
+        <div class="hero-float-card"><span class="float-sparkle"><i class="bi bi-lock"></i></span><span><b>Private by account</b><small>Customers see only their tickets</small></span></div>
+        <div class="reply-notification-float" aria-label="Example customer reply notification">
+          <span class="reply-notification-icon"><i class="bi bi-chat-square-heart-fill"></i></span>
+          <span><b>A reply is waiting</b><small>Your support team got back to you</small></span>
+          <span class="reply-notification-dot"></span>
+        </div>
+      </div>
+    </section>
+
+    <section class="landing-proof" aria-label="SupportDesk capabilities">
+      <div><i class="bi bi-person-lock"></i><span>Separate customer and analyzer portals</span></div>
+      <div><i class="bi bi-cloud-check"></i><span>Tickets stored in Supabase</span></div>
+      <div><i class="bi bi-person-check"></i><span>Human-reviewed replies</span></div>
+      <div><i class="bi bi-bar-chart-line"></i><span>Insights from support activity</span></div>
+    </section>
+
+    <section class="landing-section" id="how-it-works">
+      <div class="landing-section-heading">
+        <span class="section-kicker">A BETTER SUPPORT FLOW</span>
+        <h2>From first message to clear next step.</h2>
+        <p>Customers get a place to follow their requests. Analyzers get a focused workspace to prioritize and resolve them.</p>
+      </div>
+      <div class="feature-grid">
+        <article class="feature-card interactive-card" tabindex="0"><span class="feature-number">01</span><span class="feature-icon feature-icon-blue"><i class="bi bi-person-vcard"></i></span><h3>A portal for customers</h3><p>Create a secure account, submit a request, and see the status of your own tickets without access to anyone else's support history.</p><div class="card-more"><span><i class="bi bi-lock"></i>Private ticket history</span><span><i class="bi bi-bell"></i>Updates when support replies</span></div><a href="{{ url_for('customer_signup') }}">Create a customer account <i class="bi bi-arrow-right"></i></a></article>
+        <article class="feature-card interactive-card" tabindex="0"><span class="feature-number">02</span><span class="feature-icon feature-icon-violet"><i class="bi bi-stars"></i></span><h3>A workspace for analyzers</h3><p>Review the ticket queue, search and filter incoming issues, and use AI-generated context to help choose what needs attention.</p><div class="card-more"><span><i class="bi bi-funnel"></i>Search and prioritize requests</span><span><i class="bi bi-pencil-square"></i>Review every AI suggestion</span></div><a href="{{ url_for('analyzer_login') }}">Analyzer sign in <i class="bi bi-arrow-right"></i></a></article>
+        <article class="feature-card interactive-card" tabindex="0"><span class="feature-number">03</span><span class="feature-icon feature-icon-green"><i class="bi bi-chat-square-heart"></i></span><h3>Replies reach the customer</h3><p>Review and edit a suggested response, then send it straight to the customer's ticket. A new-reply notification makes it easy to spot.</p><div class="card-more"><span><i class="bi bi-chat-left-text"></i>Replies stay with the ticket</span><span><i class="bi bi-check2-circle"></i>Customers can track updates</span></div><a href="{{ url_for('customer_login') }}">Open the customer portal <i class="bi bi-arrow-right"></i></a></article>
+      </div>
+    </section>
+
+    <section class="landing-cta">
+      <div><span class="section-kicker">READY WHEN YOU ARE</span><h2>Make the next support request easier.</h2><p>Choose the portal that fits what you need to do.</p></div>
+      <div class="landing-cta-actions"><a href="{{ url_for('customer_signup') }}" class="btn btn-light btn-lg">I need support <i class="bi bi-arrow-right ms-2"></i></a><a href="{{ url_for('analyzer_login') }}" class="landing-cta-staff">I work on support <i class="bi bi-arrow-up-right ms-1"></i></a></div>
+    </section>
+  </main>
+
+  <footer class="landing-footer">
+    <a class="landing-brand" href="{{ url_for('home') }}"><span class="brand-mark"><i class="bi bi-headset"></i></span><span>SupportDesk<small>AI SUPPORT WORKSPACE</small></span></a>
+    <span>Support that feels a little more human.</span>
+    <nav aria-label="Footer navigation"><a href="{{ url_for('customer_login') }}">Customer login</a><a href="{{ url_for('analyzer_login') }}">Analyzer login</a><a href="{{ url_for('customer_signup') }}">Create account</a></nav>
+  </footer>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

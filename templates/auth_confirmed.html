@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Email confirmation | SupportDesk{% endblock %}
+{% block page_heading %}Email confirmation{% endblock %}
+{% block content %}
+<div class="success-wrap">
+  <section class="success-card">
+    <div class="success-check"><i class="bi bi-envelope-check"></i></div>
+    <div class="eyebrow success-eyebrow">CUSTOMER PORTAL</div>
+    <h2>Check your email confirmation</h2>
+    <p>If you followed the confirmation link, return to SupportDesk and sign in to your customer account.</p>
+    <div class="success-actions"><a class="btn btn-primary" href="{{ url_for('customer_login') }}">Go to customer sign in <i class="bi bi-arrow-right ms-2"></i></a></div>
+  </section>
+</div>
+{% endblock %}

@@ -1,0 +1,5 @@
+Flask>=3.1,<4
+Flask-Session>=0.8,<1
+groq>=0.20
+python-dotenv>=1.0,<2
+supabase>=2.0,<3

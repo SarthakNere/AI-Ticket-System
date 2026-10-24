@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Create Ticket | SupportDesk{% endblock %}
+{% block page_heading %}Create ticket{% endblock %}
+{% block content %}
+<div class="page-intro"><div><h2>How can we help?</h2><p>Tell us what happened. Our support team will review your request and can use AI-assisted context to help prepare a response.</p></div></div>
+<div class="form-layout">
+  <section class="panel form-panel">
+    <div class="panel-heading"><div><h3>Ticket information</h3><p>Your account details are attached automatically.</p></div><span class="form-step"><i class="bi bi-pencil-square"></i> New request</span></div>
+    <form method="POST" action="{{ url_for('submit_ticket') }}" class="ticket-form">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <div class="form-grid">
+        <div class="form-group full-width"><label for="subject">Ticket subject <span>*</span></label><input class="form-control" id="subject" name="subject" maxlength="200" placeholder="Briefly describe the issue" required value="{{ request.form.get('subject', '') }}"></div>
+        <div class="form-group full-width"><label for="description">Issue description <span>*</span></label><textarea class="form-control description-input" id="description" name="description" rows="7" maxlength="10000" placeholder="Describe the issue in detail. Include any steps already tried..." required>{{ request.form.get('description', '') }}</textarea><div class="field-hint">Your request is linked to your account so you can track it from My tickets.</div></div>
+      </div>
+      <div class="form-actions"><span class="secure-note"><i class="bi bi-shield-check"></i> Ticket data is stored securely in Supabase.</span><button type="submit" class="btn btn-primary btn-lg"><i class="bi bi-send me-2"></i>Submit ticket</button></div>
+    </form>
+  </section>
+  <aside class="helper-card"><div class="helper-icon"><i class="bi bi-stars"></i></div><h3>Thoughtful support, with AI</h3><p>Your support team can use AI suggestions to understand a request and prepare a draft response.</p><ul><li><i class="bi bi-check-circle-fill"></i> Suggest an issue category</li><li><i class="bi bi-check-circle-fill"></i> Estimate urgency and priority</li><li><i class="bi bi-check-circle-fill"></i> Detect sentiment signals</li><li><i class="bi bi-check-circle-fill"></i> Draft a reply for a person to review</li></ul><div class="helper-foot"><span class="status-dot"></span> A support person reviews every response</div></aside>
+</div>
+{% endblock %}

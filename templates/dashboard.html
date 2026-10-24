@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Dashboard | SupportDesk{% endblock %}
+{% block page_heading %}Dashboard{% endblock %}
+{% block content %}
+<div class="page-intro">
+  <div><h2>Welcome to your workspace</h2><p>Track customer requests and keep every conversation moving.</p></div>
+  <a href="{{ url_for('submit_ticket') }}" class="btn btn-primary"><i class="bi bi-plus-lg me-2"></i>Create ticket</a>
+</div>
+
+<div class="stats-grid">
+  <article class="stat-card interactive-card" tabindex="0"><div class="stat-head"><span class="stat-label">Total tickets</span><span class="stat-icon icon-blue"><i class="bi bi-inbox"></i></span></div><div class="stat-number">{{ total_tickets }}</div><div class="stat-foot">All support requests</div><div class="card-more"><span><i class="bi bi-people"></i>Across every customer account</span></div></article>
+  <article class="stat-card interactive-card" tabindex="0"><div class="stat-head"><span class="stat-label">Open tickets</span><span class="stat-icon icon-amber"><i class="bi bi-envelope-open"></i></span></div><div class="stat-number">{{ open_tickets }}</div><div class="stat-foot">Waiting for attention</div><div class="card-more"><span><i class="bi bi-hourglass-split"></i>Ready for a first response</span></div></article>
+  <article class="stat-card interactive-card" tabindex="0"><div class="stat-head"><span class="stat-label">In progress</span><span class="stat-icon icon-purple"><i class="bi bi-arrow-repeat"></i></span></div><div class="stat-number">{{ in_progress_tickets }}</div><div class="stat-foot">Currently being handled</div><div class="card-more"><span><i class="bi bi-person-gear"></i>Actively under review</span></div></article>
+  <article class="stat-card interactive-card" tabindex="0"><div class="stat-head"><span class="stat-label">Resolved</span><span class="stat-icon icon-green"><i class="bi bi-check2-circle"></i></span></div><div class="stat-number">{{ resolved_tickets }}</div><div class="stat-foot">Successfully completed</div><div class="card-more"><span><i class="bi bi-check-circle"></i>Marked complete by the team</span></div></article>
+</div>
+
+<section class="panel">
+  <div class="panel-heading"><div><h3>Customer tickets</h3><p>Search and manage incoming customer requests.</p></div><span class="count-pill">{{ tickets|length }} shown</span></div>
+  <form class="filter-bar" method="GET" action="{{ url_for('analyzer_dashboard') }}">
+    <div class="search-field"><i class="bi bi-search"></i><input type="search" name="search" value="{{ search }}" placeholder="Search name, email or subject..."></div>
+    <select class="form-select filter-select" name="status" aria-label="Filter by status">
+      <option value="">All statuses</option>
+      {% for value in ['Open', 'In Progress', 'Resolved'] %}<option value="{{ value }}" {% if status_filter == value %}selected{% endif %}>{{ value }}</option>{% endfor %}
+    </select>
+    <select class="form-select filter-select" name="priority" aria-label="Filter by priority">
+      <option value="">All priorities</option>
+      {% for value in ['Low', 'Medium', 'High', 'Urgent'] %}<option value="{{ value }}" {% if priority_filter == value %}selected{% endif %}>{{ value }}</option>{% endfor %}
+    </select>
+    <button class="btn btn-outline-primary" type="submit">Apply</button>
+    {% if search or status_filter or priority_filter %}<a class="btn btn-light" href="{{ url_for('analyzer_dashboard') }}">Reset</a>{% endif %}
+  </form>
+
+  {% if tickets %}
+  <div class="table-responsive">
+    <table class="table ticket-table align-middle mb-0">
+      <thead><tr><th>Ticket</th><th>Customer</th><th>Category</th><th>Priority</th><th>Status</th><th>Created</th><th></th></tr></thead>
+      <tbody>
+      {% for ticket in tickets %}
+      <tr>
+        <td><a class="ticket-subject" href="{{ url_for('ticket_details', ticket_id=ticket.id) }}">{{ ticket.subject }}</a><span class="ticket-id">#{{ ticket.id }}</span></td>
+        <td><div class="customer-name">{{ ticket.customer_name }}</div><div class="customer-email">{{ ticket.customer_email }}</div></td>
+        <td><span class="category-text">{{ ticket.category or 'Uncategorized' }}</span></td>
+        <td><span class="pill priority-{{ (ticket.priority or 'medium')|lower|replace(' ', '-') }}">{{ ticket.priority or 'Medium' }}</span></td>
+        <td><span class="pill status-{{ (ticket.status or 'open')|lower|replace(' ', '-') }}">{{ ticket.status or 'Open' }}</span></td>
+        <td class="date-cell">{{ ticket.created_display }}</td>
+        <td><a class="icon-link" href="{{ url_for('ticket_details', ticket_id=ticket.id) }}" aria-label="View ticket"><i class="bi bi-arrow-up-right"></i></a></td>
+      </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state"><span class="empty-icon"><i class="bi bi-inbox"></i></span><h4>No tickets found</h4><p>Try changing your search filters. New customer requests will appear here.</p></div>
+  {% endif %}
+</section>
+{% endblock %}

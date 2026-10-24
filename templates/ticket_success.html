@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Ticket Submitted | SupportDesk{% endblock %}
+{% block page_heading %}Ticket submitted{% endblock %}
+{% block content %}
+<div class="success-wrap">
+  <div class="success-card">
+    <div class="success-check"><i class="bi bi-check-lg"></i></div>
+    <div class="eyebrow success-eyebrow">REQUEST RECEIVED</div>
+    <h2>Your ticket is in the system.</h2>
+    <p>Thanks for submitting a support request. It is saved to your account and is now in the support team's queue.</p>
+    <div class="success-ticket"><span>Ticket reference</span><strong>#{{ ticket.id }}</strong><span class="pill status-{{ (ticket.status or 'open')|lower|replace(' ', '-') }}">{{ ticket.status }}</span></div>
+    <div class="success-subject"><span>Subject</span><strong>{{ ticket.subject }}</strong></div>
+    <div class="success-actions"><a class="btn btn-primary" href="{{ url_for('ticket_details', ticket_id=ticket.id) }}">View ticket <i class="bi bi-arrow-right ms-2"></i></a><a class="btn btn-outline-primary" href="{{ url_for('customer_dashboard') }}">My tickets</a></div>
+  </div>
+</div>
+{% endblock %}

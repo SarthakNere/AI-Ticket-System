@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Analytics | SupportDesk{% endblock %}
+{% block page_heading %}Analytics{% endblock %}
+{% block content %}
+<div class="page-intro"><div><h2>Support insights</h2><p>Understand your ticket workload using the data saved in your database.</p></div><span class="report-label"><i class="bi bi-database-check me-2"></i>Live database data</span></div>
+<div class="analytics-summary"><div class="analytics-total"><span>Total tickets tracked</span><strong>{{ total_tickets }}</strong><small>Across all categories and statuses</small></div><div class="analytics-note"><span class="note-icon"><i class="bi bi-info-circle"></i></span><p>Charts update from your ticket records whenever you open this page. Empty charts are normal when no tickets have been submitted yet.</p></div></div>
+<div class="charts-grid">
+  <section class="panel chart-panel"><div class="panel-heading"><div><h3>Tickets by status</h3><p>Current workflow distribution</p></div></div><div class="chart-wrap"><canvas id="statusChart"></canvas></div></section>
+  <section class="panel chart-panel"><div class="panel-heading"><div><h3>Tickets by priority</h3><p>Understand urgency at a glance</p></div></div><div class="chart-wrap"><canvas id="priorityChart"></canvas></div></section>
+  <section class="panel chart-panel"><div class="panel-heading"><div><h3>Tickets by category</h3><p>Most common customer issues</p></div></div><div class="chart-wrap"><canvas id="categoryChart"></canvas></div></section>
+  <section class="panel chart-panel"><div class="panel-heading"><div><h3>Customer sentiment</h3><p>AI-detected sentiment signals</p></div></div><div class="chart-wrap"><canvas id="sentimentChart"></canvas></div></section>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script>
+const chartSets = {
+  status: {{ status_data|tojson }},
+  priority: {{ priority_data|tojson }},
+  category: {{ category_data|tojson }},
+  sentiment: {{ sentiment_data|tojson }}
+};
+function makeChart(id, dataset, type) {
+  const canvas = document.getElementById(id);
+  if (!canvas) return;
+  const colors = ['#4f6bed', '#f3b54a', '#8c6de8', '#34a879', '#e56c77', '#53a7c5'];
+  new Chart(canvas, {
+    type: type,
+    data: { labels: dataset.labels, datasets: [{ data: dataset.values, backgroundColor: colors, borderColor: '#ffffff', borderWidth: 3, borderRadius: type === 'bar' ? 7 : 0, maxBarThickness: 42 }] },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: type === 'doughnut', position: 'bottom', labels: { usePointStyle: true, padding: 18, color: '#667085', font: { family: 'Inter, sans-serif', size: 11 } } } },
+      scales: type === 'bar' ? { x: { grid: { display: false }, ticks: { color: '#667085' }, border: { display: false } }, y: { beginAtZero: true, ticks: { precision: 0, color: '#667085' }, grid: { color: '#edf0f5' }, border: { display: false } } } : {}
+    }
+  });
+}
+makeChart('statusChart', chartSets.status, 'doughnut');
+makeChart('priorityChart', chartSets.priority, 'bar');
+makeChart('categoryChart', chartSets.category, 'bar');
+makeChart('sentimentChart', chartSets.sentiment, 'doughnut');
+</script>
+{% endblock %}

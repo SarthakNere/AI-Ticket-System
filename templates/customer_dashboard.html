@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}My Tickets | SupportDesk{% endblock %}
+{% block page_heading %}My tickets{% endblock %}
+{% block content %}
+<div class="page-intro"><div><h2>Hello, {{ g.user.full_name.split(' ')[0] }}</h2><p>Track your support requests and see the latest status.</p></div><a href="{{ url_for('submit_ticket') }}" class="btn btn-primary"><i class="bi bi-plus-lg me-2"></i>Create ticket</a></div>
+{% if unread_replies %}
+<section class="notification-center" aria-label="Unread support replies">
+  <div class="notification-heading"><span class="notification-icon"><i class="bi bi-bell-fill"></i></span><div><strong>You have {{ unread_replies|length }} new {{ 'reply' if unread_replies|length == 1 else 'replies' }}</strong><span>Your support team has responded. Open a ticket to read the message.</span></div></div>
+  <div class="notification-list">{% for ticket in unread_replies[:3] %}<a class="notification-item" href="{{ url_for('ticket_details', ticket_id=ticket.id) }}"><span class="notification-dot"></span><span><strong>{{ ticket.subject }}</strong><small>{{ ticket.analyzer_reply|truncate(115) }}</small></span><i class="bi bi-arrow-up-right"></i></a>{% endfor %}</div>
+</section>
+{% endif %}
+<div class="stats-grid customer-stats">
+  <article class="stat-card interactive-card" tabindex="0"><div class="stat-head"><span class="stat-label">Your tickets</span><span class="stat-icon icon-blue"><i class="bi bi-inbox"></i></span></div><div class="stat-number">{{ total_tickets }}</div><div class="stat-foot">Requests submitted from your account</div><div class="card-more"><span><i class="bi bi-person-check"></i>Visible only to your account</span></div></article>
+  <article class="stat-card interactive-card" tabindex="0"><div class="stat-head"><span class="stat-label">Open</span><span class="stat-icon icon-amber"><i class="bi bi-envelope-open"></i></span></div><div class="stat-number">{{ open_tickets }}</div><div class="stat-foot">Waiting for support</div><div class="card-more"><span><i class="bi bi-hourglass-split"></i>Waiting for a support response</span></div></article>
+  <article class="stat-card interactive-card" tabindex="0"><div class="stat-head"><span class="stat-label">Resolved</span><span class="stat-icon icon-green"><i class="bi bi-check2-circle"></i></span></div><div class="stat-number">{{ resolved_tickets }}</div><div class="stat-foot">Successfully completed</div><div class="card-more"><span><i class="bi bi-check-circle"></i>Completed by the support team</span></div></article>
+</div>
+<section class="panel">
+  <div class="panel-heading"><div><h3>Your support history</h3><p>Only tickets submitted by your account are shown here.</p></div><span class="count-pill">{{ tickets|length }} tickets</span></div>
+  {% if tickets %}
+  <div class="table-responsive"><table class="table ticket-table align-middle mb-0">
+    <thead><tr><th>Ticket</th><th>Category</th><th>Priority</th><th>Status</th><th>Created</th><th></th></tr></thead>
+    <tbody>{% for ticket in tickets %}<tr>
+      <td><a class="ticket-subject" href="{{ url_for('ticket_details', ticket_id=ticket.id) }}">{{ ticket.subject }}</a><span class="ticket-id">#{{ ticket.id }}</span></td>
+      <td><span class="category-text">{{ ticket.category or 'Uncategorized' }}</span></td>
+      <td><span class="pill priority-{{ (ticket.priority or 'medium')|lower|replace(' ', '-') }}">{{ ticket.priority or 'Medium' }}</span></td>
+      <td><span class="pill status-{{ (ticket.status or 'open')|lower|replace(' ', '-') }}">{{ ticket.status or 'Open' }}</span>{% if ticket.has_unread_reply %}<span class="reply-table-badge"><i class="bi bi-chat-left-text-fill"></i> New reply</span>{% endif %}</td>
+      <td class="date-cell">{{ ticket.created_display }}</td>
+      <td><a class="icon-link" href="{{ url_for('ticket_details', ticket_id=ticket.id) }}" aria-label="View ticket"><i class="bi bi-arrow-up-right"></i></a></td>
+    </tr>{% endfor %}</tbody>
+  </table></div>
+  {% else %}
+  <div class="empty-state"><span class="empty-icon"><i class="bi bi-inbox"></i></span><h4>No tickets yet</h4><p>When you submit a support request, it will appear here.</p><a class="btn btn-primary" href="{{ url_for('submit_ticket') }}">Create your first ticket</a></div>
+  {% endif %}
+</section>
+{% endblock %}

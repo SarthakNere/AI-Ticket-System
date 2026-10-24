@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Create customer account' if mode == 'signup' else ('Analyzer sign in' if portal == 'analyzer' else 'Customer sign in') }} | SupportDesk{% endblock %}
+{% block page_heading %}{{ 'Create account' if mode == 'signup' else 'Sign in' }}{% endblock %}
+{% block content %}
+<div class="auth-wrap">
+  <section class="panel auth-card">
+    <div class="auth-icon"><i class="bi {{ 'bi-person-workspace' if portal == 'analyzer' else 'bi-person' }}"></i></div>
+    <span class="section-kicker">{{ 'ANALYZER PORTAL' if portal == 'analyzer' else 'CUSTOMER PORTAL' }}</span>
+    <h2>{{ 'Create your customer account' if mode == 'signup' else ('Welcome back, support team' if portal == 'analyzer' else 'Welcome back') }}</h2>
+    <p class="auth-description">
+      {% if mode == 'signup' %}Sign up to submit requests and follow your own ticket history.{% elif portal == 'analyzer' %}Sign in to review and manage the customer ticket queue.{% else %}Sign in to create a request and check updates on your tickets.{% endif %}
+    </p>
+    {% if not supabase_ready %}<div class="alert alert-warning auth-config-alert">Supabase is not connected yet. Add the project URL and publishable key to your local <code>.env</code> file after completing the setup instructions.</div>{% endif %}
+    <form method="POST" action="{{ request.path }}" class="auth-form">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      {% if mode == 'signup' %}<label for="full_name">Full name</label><input class="form-control" id="full_name" name="full_name" maxlength="100" autocomplete="name" required value="{{ request.form.get('full_name', '') }}">{% endif %}
+      <label for="email">Email address</label><input class="form-control" type="email" id="email" name="email" maxlength="150" autocomplete="email" required value="{{ request.form.get('email', '') }}">
+      <label for="password">Password</label><input class="form-control" type="password" id="password" name="password" autocomplete="{{ 'new-password' if mode == 'signup' else 'current-password' }}" minlength="{{ 8 if mode == 'signup' else 1 }}" required>
+      <button class="btn btn-primary w-100" type="submit">{{ 'Create customer account' if mode == 'signup' else 'Sign in to ' + ('analyzer' if portal == 'analyzer' else 'customer') + ' portal' }} <i class="bi bi-arrow-right ms-2"></i></button>
+    </form>
+    <div class="auth-switch">
+      {% if mode == 'signup' %}<span>Already have an account?</span> <a href="{{ url_for('customer_login') }}">Customer sign in</a>
+      {% elif portal == 'customer' %}<span>New to SupportDesk?</span> <a href="{{ url_for('customer_signup') }}">Create an account</a>
+      {% else %}<span>Need a customer account?</span> <a href="{{ url_for('customer_signup') }}">Customer sign up</a>{% endif %}
+    </div>
+    {% if mode == 'login' and portal == 'customer' %}
+    <form method="POST" action="{{ url_for('resend_customer_confirmation') }}" class="resend-confirmation-form">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <label for="resendEmail">Confirmation email not arriving?</label>
+      <input class="form-control" type="email" id="resendEmail" name="email" autocomplete="email" placeholder="Enter your account email" required>
+      <button class="btn btn-outline-primary w-100" type="submit">Resend confirmation email</button>
+    </form>
+    {% endif %}
+    <div class="auth-portal-switch">
+      {% if portal == 'analyzer' %}<a href="{{ url_for('customer_login') }}"><i class="bi bi-person"></i> Go to customer sign in</a>
+      {% else %}<a href="{{ url_for('analyzer_login') }}"><i class="bi bi-person-workspace"></i> Support team? Analyzer sign in</a>{% endif %}
+    </div>
+  </section>
+</div>
+{% endblock %}
